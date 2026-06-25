@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EPILAND - Бронювання розваг</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Custom Styleheet -->
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+    <!-- Beautiful Greeting Splash Screen -->
+    <div id="splash-loader" class="splash-loader">
+        <div class="splash-content">
+            <div class="splash-logo-container">
+                <div class="splash-glow"></div>
+                <img src="/static/logo.svg" alt="EPILAND Logo" class="splash-logo">
+            </div>
+            <h2 class="splash-title">Вітаємо в EPILAND</h2>
+            <p class="splash-subtitle">Створюємо незабутні свята...</p>
+            <div class="splash-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container repeating-bg">
+        
+        <!-- ================= HOME SCREEN ================= -->
+        <div id="home-screen" class="home-screen">
+            <!-- Header with logo and location -->
+            <header class="app-header">
+                <div class="brand">
+                    <img src="/static/logo.svg" alt="EPILAND Logo" class="logo-img">
+                </div>
+                <div class="header-right-block" style="display: flex; align-items: center; gap: 12px;">
+                    <div class="location-control">
+                        <select id="location-select" class="modern-select" style="display: none;">
+                            <option value="kyiv">EPILAND Київ (Оболонь)</option>
+                            <option value="chabany" selected>EPILAND Чабани</option>
+                            <option value="obukhiv">EPILAND Обухів</option>
+                        </select>
+                        <div class="custom-select-trigger" id="custom-select-trigger" style="cursor: pointer;">
+                            <span id="selected-location-text">EPILAND Чабани</span>
+                            <i class="fa-solid fa-chevron-down select-chevron"></i>
+                        </div>
+                    </div>
+                    <!-- Profile header button -->
+                    <div class="header-profile-btn" id="home-profile-btn" onclick="showProfile()" style="cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1.5px solid var(--border-color); padding: 5px 12px; border-radius: 12px; transition: 0.3s;">
+                        <img class="header-avatar" id="home-avatar-img" src="/static/logo.svg" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--primary-color);">
+                        <span class="header-balance" id="home-balance-badge" style="font-weight: 700; font-size: 11.5px; color: #FFFFFF;">0 грн</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Navigation Buttons with Direct Category Mappings -->
+            <div class="dashboard-grid">
+                <button class="dash-btn primary" id="btn-order-holiday">
+                    <i class="fa-solid fa-cake-candles dash-icon"></i>
+                    <span class="dash-label">Замовити Свято</span>
+                </button>
+                <button class="dash-btn primary" id="btn-refill-card">
+                    <i class="fa-solid fa-credit-card dash-icon"></i>
+                    <span class="dash-label">Поповнити Картку</span>
+                </button>
+                <button class="dash-btn" id="btn-attractions">
+                    <i class="fa-solid fa-rocket dash-icon"></i>
+                    <span class="dash-label">Атракціони</span>
+                </button>
+                <button class="dash-btn" id="btn-tariffs">
+                    <i class="fa-solid fa-tags dash-icon"></i>
+                    <span class="dash-label">Тарифи та акції</span>
+                </button>
+                <button class="dash-btn" id="btn-products">
+                    <i class="fa-solid fa-ticket dash-icon"></i>
+                    <span class="dash-label">Супутні товари</span>
+                </button>
+                <button class="dash-btn hidden" id="btn-lasertag-home">
+                    <i class="fa-solid fa-crosshairs dash-icon"></i>
+                    <span class="dash-label">Лазертаг / Пейнтбол</span>
+                </button>
+                <button class="dash-btn" id="btn-cafe">
+                    <i class="fa-solid fa-mug-hot dash-icon"></i>
+                    <span class="dash-label">Кафе</span>
+                </button>
+                <button class="dash-btn" id="btn-contact">
+                    <i class="fa-solid fa-phone-volume dash-icon"></i>
+                    <span class="dash-label">Зв'язатися з нами</span>
+                </button>
+                <button class="dash-btn" id="btn-about">
+                    <i class="fa-solid fa-circle-info dash-icon"></i>
+                    <span class="dash-label">Про нас</span>
+                </button>
+            </div>
+            
+            <div class="dashboard-footer">
+                <span class="footer-note">EPILAND Mini App Booking</span>
+            </div>
+        </div>
+
+        <!-- ================= APP WORKSPACE SCREEN ================= -->
+        <div id="app-workspace" class="app-workspace hidden">
+            <!-- Header with Back Button and Info -->
+            <header class="app-header">
+                <button class="back-btn" id="workspace-back-btn">
+                    <i class="fa-solid fa-chevron-left"></i> Назад
+                </button>
+                <div class="brand">
+                    <img src="/static/logo.svg" alt="EPILAND Logo" class="logo-img">
+                </div>
+                <div class="header-right-block" style="display: flex; align-items: center; gap: 12px;">
+                    <div class="active-location-badge" id="active-location-badge">
+                        Чабани
+                    </div>
+                    <!-- Profile header button -->
+                    <div class="header-profile-btn" id="workspace-profile-btn" onclick="showProfile()" style="cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1.5px solid var(--border-color); padding: 5px 12px; border-radius: 12px; transition: 0.3s;">
+                        <img class="header-avatar" id="workspace-avatar-img" src="/static/logo.svg" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--primary-color);">
+                        <span class="header-balance" id="workspace-balance-badge" style="font-weight: 700; font-size: 11.5px; color: #FFFFFF;">0 грн</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Category Navigation Tabs -->
+            <nav class="category-tabs" id="category-tabs">
+                <button class="tab-btn active" data-tab="attractions">
+                    <i class="fa-solid fa-rocket"></i> Атракціони
+                </button>
+                <button class="tab-btn" data-tab="promotions_tariffs">
+                    <i class="fa-solid fa-tags"></i> Тарифи та акції
+                </button>
+                <button class="tab-btn" data-tab="products">
+                    <i class="fa-solid fa-ticket"></i> Супутні товари
+                </button>
+                <button class="tab-btn" data-tab="cafe">
+                    <i class="fa-solid fa-mug-hot"></i> Кафе
+                </button>
+                <button class="tab-btn" data-tab="refill_card">
+                    <i class="fa-solid fa-credit-card"></i> Поповнити картку
+                </button>
+                <button class="tab-btn hidden" id="lasertag-tab" data-tab="lazertag_paintball">
+                    <i class="fa-solid fa-crosshairs"></i> Лазертаг / Пейнтбол
+                </button>
+                <button class="tab-btn hidden" id="birthday-rooms-tab" data-tab="birthday_rooms">
+                    <i class="fa-solid fa-house-chimney-window"></i> Банкетні кімнати
+                </button>
+                <button class="tab-btn hidden" id="birthday-animators-tab" data-tab="birthday_animators">
+                    <i class="fa-solid fa-mask"></i> Аніматори
+                </button>
+                <button class="tab-btn hidden" id="birthday-shows-tab" data-tab="birthday_shows">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Шоу та МК
+                </button>
+                <button class="tab-btn hidden" id="birthday-cakes-tab" data-tab="birthday_cakes">
+                    <i class="fa-solid fa-cake-candles"></i> Торти та декор
+                </button>
+            </nav>
+
+            <!-- Main Workspace: Split Layout -->
+            <main class="main-content" id="main-content">
+                <!-- Catalog Feed Grid -->
+                <section class="catalog-section" id="catalog-section">
+                    <div class="section-header">
+                        <h2 id="current-category-title">Розваги та атракціони</h2>
+                        <span class="count-badge" id="catalog-count">0 позицій</span>
+                    </div>
+                    <div class="catalog-grid" id="catalog-grid">
+                        <!-- Cards will be dynamically injected here by app.js -->
+                        <div class="loading-state">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Завантаження послуг...
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Hidden placeholder container to prevent JS warnings before wizard bind -->
+                <section class="booking-panel hidden" id="booking-panel" style="display: none;"></section>
+            </main>
+
+        </div>
+
+        <!-- Minimalistic Confirmatory Modal Dialogs -->
+        <div class="modal-backdrop" id="modal-backdrop">
+            <!-- Success Modal -->
+            <div class="modal-card success" id="success-modal">
+                <div class="modal-icon-circle">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h2>Успішне бронювання!</h2>
+                <p class="modal-desc">Розваги заброньовано та записано у базу даних Excel.</p>
+                <div class="ticket-preview">
+                    <div class="ticket-row">
+                        <span class="ticket-label">ID Замовлення</span>
+                        <span class="ticket-value highlight" id="t-id">EP-1001</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Локація</span>
+                        <span class="ticket-value" id="t-location">Чабани</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Дата та Час</span>
+                        <span class="ticket-value" id="t-datetime">2026-05-22 о 14:00</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Сума до сплати</span>
+                        <span class="ticket-value highlight" id="t-price">750 грн</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal()">Супер, дякую!</button>
+            </div>
+
+            <!-- Error Modal -->
+            <div class="modal-card error" id="error-modal">
+                <div class="modal-icon-circle">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h2 id="error-title">Помилка бронювання</h2>
+                <p class="modal-desc" id="error-desc">Ці позиції вже заброньовані на цей час іншим користувачем.</p>
+                <button class="modal-close-btn" onclick="closeModal()">Зрозуміло</button>
+            </div>
+
+            <!-- Contact Modal -->
+            <div class="modal-card success" id="contact-modal" style="display: none;">
+                <div class="modal-icon-circle" style="background: var(--accent-light); color: var(--primary-color);">
+                    <i class="fa-solid fa-phone-volume"></i>
+                </div>
+                <h2>Зв'язатися з нами</h2>
+                <p class="modal-desc">Маєте запитання або хочете уточнити деталі?</p>
+                <div class="ticket-preview" style="text-align: left; font-size: 13.5px; gap: 12px;">
+                    <div><strong>📍 Локації та Контакти:</strong></div>
+                    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
+                        <strong>Київ (Оболонь):</strong><br>
+                        📞 <a href="tel:+380671112233" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">+38 (067) 111-22-33</a>
+                    </div>
+                    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
+                        <strong>Чабани:</strong><br>
+                        📞 <a href="tel:+380674445566" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">+38 (067) 444-55-66</a>
+                    </div>
+                    <div>
+                        <strong>Обухів:</strong><br>
+                        📞 <a href="tel:+380677778899" style="color: var(--primary-color); font-weight: 700; text-decoration: none;">+38 (067) 777-88-99</a>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal()">Закрити</button>
+            </div>
+
+            <!-- About Modal -->
+            <div class="modal-card success" id="about-modal" style="display: none;">
+                <div class="modal-icon-circle" style="background: var(--accent-light); color: var(--primary-color);">
+                    <i class="fa-solid fa-circle-info"></i>
+                </div>
+                <h2>Про сімейний парк EPILAND</h2>
+                <div class="ticket-preview" style="text-align: left; font-size: 13.5px; line-height: 1.5; gap: 8px;">
+                    <p>🎪 <strong>EPILAND</strong> — це мережа найсучасніших сімейних парків розваг в Україні.</p>
+                    <p>У нас ви знайдете:</p>
+                    <ul style="margin-left: 16px;">
+                        <li>Драйвові та безпечні атракціони</li>
+                        <li>Лазертаг лабіринти та автодроми</li>
+                        <li>Сучасні ігрові автомати та VR-зони</li>
+                        <li>Затишні сімейні кафе для відпочинку</li>
+                    </ul>
+                    <p>Ми робимо кожне дитяче свято незабутнім! Дякуємо, що обираєте нас.</p>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal()">Закрити</button>
+            </div>
+        </div>
+
+        <!-- Custom Location Selector Drawer -->
+        <div class="modal-backdrop" id="location-modal-backdrop">
+            <div class="location-drawer" id="location-drawer">
+                <div class="drawer-header">
+                    <h3>Оберіть локацію EPILAND</h3>
+                    <button class="drawer-close-btn" id="location-drawer-close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="location-options-list">
+                    <div class="location-option-card" data-value="kyiv">
+                        <div class="loc-card-icon"><i class="fa-solid fa-map-pin"></i></div>
+                        <div class="loc-card-details">
+                            <span class="loc-card-title">EPILAND Київ (Оболонь)</span>
+                            <span class="loc-card-desc">пр-т Степана Бандери, 11-А</span>
+                        </div>
+                        <div class="loc-card-check"><i class="fa-regular fa-circle"></i></div>
+                    </div>
+                    <div class="location-option-card active" data-value="chabany">
+                        <div class="loc-card-icon"><i class="fa-solid fa-map-pin"></i></div>
+                        <div class="loc-card-details">
+                            <span class="loc-card-title">EPILAND Чабани</span>
+                            <span class="loc-card-desc">смт Чабани, Одеське шосе, 8</span>
+                        </div>
+                        <div class="loc-card-check"><i class="fa-regular fa-circle-dot"></i></div>
+                    </div>
+                    <div class="location-option-card" data-value="obukhiv">
+                        <div class="loc-card-icon"><i class="fa-solid fa-map-pin"></i></div>
+                        <div class="loc-card-details">
+                            <span class="loc-card-title">EPILAND Обухів</span>
+                            <span class="loc-card-desc">м. Обухів, вул. Київська, 119</span>
+                        </div>
+                        <div class="loc-card-check"><i class="fa-regular fa-circle"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PROFILE SCREEN ================= -->
+        <div id="profile-screen" class="profile-screen repeating-bg hidden">
+            <!-- Header with Back Button -->
+            <header class="app-header">
+                <button class="back-btn" id="profile-back-btn" onclick="hideProfile()">
+                    <i class="fa-solid fa-chevron-left"></i> Назад
+                </button>
+                <div class="brand">
+                    <img src="/static/logo.svg" alt="EPILAND Logo" class="logo-img">
+                </div>
+                <div class="active-location-badge">Профіль</div>
+            </header>
+            
+            <div class="profile-scroll-container" style="padding: 20px; display: flex; flex-direction: column; gap: 20px; max-height: calc(100vh - 80px); overflow-y: auto;">
+                <!-- User Info Card -->
+                <div class="profile-user-card card-style" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: var(--border-radius-card);">
+                    <div class="profile-avatar-container" style="position: relative; margin-bottom: 16px;">
+                        <div class="avatar-glow" style="position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); z-index: 1; filter: blur(4px); opacity: 0.6;"></div>
+                        <img id="profile-avatar-img" class="profile-avatar-large" src="/static/logo.svg" alt="User Avatar" style="width: 80px; height: 80px; border-radius: 50%; border: 2.5px solid #FFFFFF; position: relative; z-index: 2; object-fit: cover;">
+                    </div>
+                    <h3 id="profile-user-name" class="profile-name" style="font-size: 18px; font-weight: 800; color: var(--color-text-dark); margin-bottom: 4px;">Гість</h3>
+                    <span id="profile-user-username" class="profile-username" style="font-size: 13px; font-weight: 600; color: var(--primary-color);">@username</span>
+                </div>
+                
+                <!-- Card Balance -->
+                <div class="profile-balance-card card-style" style="padding: 24px; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: var(--border-radius-card); display: flex; flex-direction: column; gap: 14px;">
+                    <div class="balance-label" style="font-size: 11px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-credit-card"></i> Ігрова картка EPILAND</div>
+                    <div class="balance-amount-row" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="balance-value" id="profile-balance-value" style="font-size: 26px; font-weight: 900; color: var(--color-text-dark);">0 грн</span>
+                        <button class="balance-refill-btn" onclick="goToRefillFromProfile()" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-color-dark)); color: #FFFFFF; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px var(--glow-color);">Поповнити</button>
+                    </div>
+                </div>
+                
+                <!-- Booking History -->
+                <div class="profile-history-card card-style" style="padding: 24px; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: var(--border-radius-card); display: flex; flex-direction: column; gap: 16px;">
+                    <h4 class="history-title" style="font-size: 14px; font-weight: 800; color: var(--color-text-dark); border-bottom: 1.5px solid var(--border-color); padding-bottom: 10px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary-color);"></i> Історія замовлень</h4>
+                    <div class="history-list" id="profile-history-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div class="history-empty" style="text-align: center; padding: 40px 10px; color: var(--color-text-muted);">
+                            <i class="fa-solid fa-receipt" style="font-size: 32px; opacity: 0.3; margin-bottom: 10px;"></i>
+                            <p style="font-size: 13px;">У вас ще немає замовлень</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CHECKOUT WIZARD OVERLAY ================= -->
+        <div class="checkout-wizard-overlay hidden" id="checkout-wizard-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9, 13, 22, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 10005; display: flex; justify-content: center; align-items: flex-end; transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div class="wizard-container" style="width: 100%; max-width: 580px; height: 90vh; background: var(--bg-main); color: var(--color-text-dark); border-radius: 28px 28px 0 0; border: 1.5px solid var(--border-color); border-bottom: none; display: flex; flex-direction: column; box-shadow: 0 -15px 40px rgba(0,0,0,0.5); overflow: hidden; transform: translateY(0); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+                <!-- Header -->
+                <header class="wizard-header" style="padding: 18px 24px; border-bottom: 1.5px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-card);">
+                    <button class="wizard-back-btn" id="wizard-back-btn" onclick="handleWizardBack()" style="background: transparent; border: none; color: var(--color-text-muted); cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13.5px;"><i class="fa-solid fa-arrow-left"></i> Назад</button>
+                    <h3 id="wizard-title" style="font-size: 16px; font-weight: 800; color: var(--color-text-dark); letter-spacing: 0.5px;">Кошик</h3>
+                    <button class="wizard-close-btn" id="wizard-close-btn" onclick="closeCheckoutWizard()" style="background: var(--border-color); border: none; color: var(--color-text-dark); width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s;"><i class="fa-solid fa-xmark"></i></button>
+                </header>
+
+                <!-- Progress Tracker -->
+                <div class="wizard-progress" style="padding: 12px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--bg-card);">
+                    <div class="progress-step active" id="step-dot-1" style="font-size: 11.5px; font-weight: 700; color: var(--primary-color); transition: 0.3s;">1. Кошик</div>
+                    <div class="progress-line" id="progress-line-1" style="flex: 1; max-width: 60px; height: 2px; background: var(--border-color); transition: 0.3s;"></div>
+                    <div class="progress-step" id="step-dot-2" style="font-size: 11.5px; font-weight: 600; color: var(--color-text-muted); transition: 0.3s;">2. Оформлення</div>
+                </div>
+
+                <!-- Scrollable Content -->
+                <div class="wizard-content" style="flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column;">
+                    <!-- Step 1: Cart View -->
+                    <div class="wizard-step-panel" id="wizard-step-cart" style="display: flex; flex-direction: column; gap: 16px; flex: 1;">
+                        <div class="panel-header" style="border:none; padding:0; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+                            <h3 style="font-size:14px; font-weight:800; color:var(--color-text-dark); margin:0;"><i class="fa-solid fa-cart-shopping" style="color:var(--primary-color);"></i> Обрані послуги</h3>
+                            <button class="clear-cart-btn" id="clear-cart-btn" onclick="clearCart()" style="background: transparent; border: none; color: var(--color-error); cursor: pointer; font-size: 13px; font-weight:700; display:flex; align-items:center; gap:5px; opacity:0.8;"><i class="fa-solid fa-trash-can"></i> Очистити</button>
+                        </div>
+                        <div class="cart-items" id="cart-items" style="max-height:none; overflow-y:visible; display:flex; flex-direction:column; gap:12px;">
+                            <!-- Dynamic cart items with delete buttons and notes -->
+                        </div>
+                        <div class="wizard-cart-empty hidden" id="wizard-cart-empty" style="text-align: center; padding: 60px 10px; color: var(--color-text-muted); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; flex:1;">
+                            <i class="fa-solid fa-cart-shopping" style="font-size: 48px; opacity: 0.2;"></i>
+                            <p style="font-size: 14px;">Ваш кошик порожній. Оберіть розваги чи послуги з каталогу.</p>
+                            <button class="wizard-btn-accent" onclick="closeCheckoutWizard()" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-color-dark)); color: #FFFFFF; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px var(--glow-color);">Продовжити вибір</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Checkout Form -->
+                    <div class="wizard-step-panel hidden" id="wizard-step-checkout" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Date & Time slot selection -->
+                        <div class="booking-schedule card-style" style="padding: 20px; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 16px;">
+                            <h4 class="wizard-section-title" style="font-size: 13px; font-weight: 800; color: var(--color-text-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-regular fa-calendar-days" style="color: var(--primary-color);"></i> Дата та час візиту</h4>
+                            
+                            <div class="form-group" style="margin-bottom:14px; position:relative;">
+                                <label for="booking-date" style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Дата візиту (Натисніть ще раз для вводу вручну)</label>
+                                <!-- Custom styled datepicker trigger -->
+                                <div class="custom-datepicker-trigger" id="custom-datepicker-trigger" onclick="handleDatepickerTriggerClick()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); border: 1.5px solid var(--border-color); padding: 12px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 600; color: var(--color-text-dark); transition: 0.3s;">
+                                    <span id="selected-date-text">Оберіть дату</span>
+                                    <i class="fa-regular fa-calendar" style="color: var(--primary-color);"></i>
+                                </div>
+                                <input type="text" id="booking-date" class="modern-input hidden" placeholder="ДД.ММ.РРРР" style="letter-spacing: 2px; text-align: center; display:none;">
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Оберіть годину (Слот)</label>
+                                <div class="time-slots-grid" id="time-slots-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;">
+                                    <!-- Slots generated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact details card -->
+                        <div class="customer-info card-style" style="padding: 20px; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 16px;">
+                            <h4 class="wizard-section-title" style="font-size: 13px; font-weight: 800; color: var(--color-text-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-regular fa-id-card" style="color: var(--primary-color);"></i> Контактні дані</h4>
+                            <div class="form-group" style="margin-bottom:12px;">
+                                <label for="customer-name" style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Ім'я</label>
+                                <input type="text" id="customer-name" class="modern-input" placeholder="Введіть ваше ім'я" style="width:100%; border: 1.5px solid var(--border-color); padding:10px 14px; border-radius:12px; font-size:13.5px; background:var(--accent-light-tint); color:var(--color-text-dark);" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom:12px;">
+                                <label for="customer-lastname" style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Прізвище</label>
+                                <input type="text" id="customer-lastname" class="modern-input" placeholder="Введіть ваше прізвище" style="width:100%; border: 1.5px solid var(--border-color); padding:10px 14px; border-radius:12px; font-size:13.5px; background:var(--accent-light-tint); color:var(--color-text-dark);" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom:12px;">
+                                <label for="customer-phone" style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Номер телефону</label>
+                                <input type="tel" id="customer-phone" class="modern-input" placeholder="+380" style="width:100%; border: 1.5px solid var(--border-color); padding:10px 14px; border-radius:12px; font-size:13.5px; background:var(--accent-light-tint); color:var(--color-text-dark);" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-telegram" style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Telegram Username</label>
+                                <input type="text" id="customer-telegram" class="modern-input" placeholder="@username" style="width:100%; border: 1.5px solid var(--border-color); padding:10px 14px; border-radius:12px; font-size:13.5px; background:var(--accent-light-tint); color:var(--color-text-dark);" required>
+                            </div>
+                        </div>
+
+                        <!-- Payment option selection -->
+                        <div class="customer-info card-style" style="padding: 20px; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 16px;">
+                            <h4 class="wizard-section-title" style="font-size: 13px; font-weight: 800; color: var(--color-text-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wallet" style="color: var(--primary-color);"></i> Метод оплати</h4>
+                            <div class="form-group" style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+                                <label class="payment-method-option" style="display:flex; align-items:center; gap:10px; cursor:pointer; background:var(--accent-light-tint); padding:12px 14px; border:1.5px solid var(--border-color); border-radius:12px; transition: 0.3s; user-select:none;">
+                                    <input type="radio" name="payment_method" value="cash" checked style="accent-color:var(--primary-color); width:16px; height:16px;">
+                                    <span style="font-weight:600; font-size:13px; color:var(--color-text-dark);">Розрахунок при візиті / Дзвінок менеджера</span>
+                                </label>
+                                <label class="payment-method-option" id="balance-payment-option" style="display:flex; align-items:center; gap:10px; cursor:pointer; background:var(--accent-light-tint); padding:12px 14px; border:1.5px solid var(--border-color); border-radius:12px; transition: 0.3s; user-select:none;">
+                                    <input type="radio" name="payment_method" value="balance" style="accent-color:var(--primary-color); width:16px; height:16px;">
+                                    <span style="font-weight:600; font-size:13px; color:var(--color-text-dark); display:flex; justify-content:space-between; flex:1; align-items:center;">
+                                        Оплатити з балансу картки
+                                        <strong style="color:var(--primary-color);" id="wizard-card-balance-preview">0 грн</strong>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Expandable Birthday details card -->
+                        <div class="customer-info card-style" style="padding: 20px; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 16px;">
+                            <div class="form-group-toggle" id="additional-fields-toggle" onclick="toggleAdditionalFields()" style="cursor: pointer; color: var(--primary-color); font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; user-select: none;">
+                                <i class="fa-solid fa-chevron-right" id="fields-chevron" style="transition: transform 0.3s; font-size: 11px;"></i> Додаткова інформація (День народження тощо)
+                            </div>
+                            <div class="additional-info-fields" id="additional-info-fields" style="display: none; flex-direction: column; gap: 12px; margin-top: 12px;">
+                                <div class="form-group">
+                                    <label for="birthday-name" style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Ім'я іменинника</label>
+                                    <input type="text" id="birthday-name" class="modern-input" placeholder="Ім'я дитини" style="width:100%; border: 1.5px solid var(--border-color); padding:10px 14px; border-radius:12px; font-size:13.5px; background:var(--accent-light-tint); color:var(--color-text-dark);">
+                                </div>
+                                <div class="form-group">
+                                    <label for="birthday-age" style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Вік іменинника</label>
+                                    <input type="number" id="birthday-age" class="modern-input" placeholder="Вік дитини" min="1" max="100" style="width:100%; border: 1.5px solid var(--border-color); padding:10px 14px; border-radius:12px; font-size:13.5px; background:var(--accent-light-tint); color:var(--color-text-dark);">
+                                </div>
+                                <div class="form-group">
+                                    <label for="kids-count" style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Кількість дітей</label>
+                                    <input type="number" id="kids-count" class="modern-input" placeholder="Кількість дітей" min="1" max="200" style="width:100%; border: 1.5px solid var(--border-color); padding:10px 14px; border-radius:12px; font-size:13.5px; background:var(--accent-light-tint); color:var(--color-text-dark);">
+                                </div>
+                                <div class="form-group">
+                                    <label for="kids-age" style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Вік дітей (діапазон)</label>
+                                    <input type="text" id="kids-age" class="modern-input" placeholder="Наприклад: 7-9" style="width:100%; border: 1.5px solid var(--border-color); padding:10px 14px; border-radius:12px; font-size:13.5px; background:var(--accent-light-tint); color:var(--color-text-dark);">
+                                </div>
+                                <div class="form-group">
+                                    <label for="booking-comments" style="display:block; font-size:11px; font-weight:700; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Коментарі / особливі побажання</label>
+                                    <textarea id="booking-comments" class="modern-input" placeholder="Напишіть тут додаткові побажання..." style="width:100%; resize: vertical; min-height: 70px; font-family: var(--font-stack); line-height: 1.4; border: 1.5px solid var(--border-color); padding:10px 14px; border-radius:12px; font-size:13.5px; background:var(--accent-light-tint); color:var(--color-text-dark);"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <footer class="wizard-footer" style="padding: 18px 24px; border-top: 1.5px solid var(--border-color); background: var(--bg-card); display: flex; justify-content: space-between; align-items: center;">
+                    <div class="wizard-price-block" style="display: flex; flex-direction: column;">
+                        <span class="price-label" style="font-size: 11px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase;">Загальна сума:</span>
+                        <span class="price-value" id="total-price-val" style="font-size: 20px; font-weight: 900; color: var(--primary-color);">0 грн</span>
+                    </div>
+                    
+                    <!-- Step 1 Button -->
+                    <button class="wizard-next-btn" id="wizard-btn-go-to-checkout" onclick="handleWizardNext()" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-color-dark)); color: #FFFFFF; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size:14px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px var(--glow-color);">
+                        Оформити <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    
+                    <!-- Step 2 Button (Hidden initially) -->
+                    <button class="wizard-next-btn hidden" id="submit-booking-btn" onclick="submitBooking()" style="background: linear-gradient(135deg, #10B981, #059669); color: #FFFFFF; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size:14px; cursor: pointer; display: none; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);" disabled>
+                        Підтвердити замовлення <i class="fa-solid fa-circle-check"></i>
+                    </button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- ================= CUSTOM INTERACTIVE DATEPICKER MODAL ================= -->
+        <div class="modal-backdrop" id="datepicker-modal-backdrop" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9, 13, 22, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10020; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;">
+            <div class="datepicker-card" id="datepicker-card" style="width: 90%; max-width: 360px; background: var(--bg-card); color: var(--color-text-dark); border: 1.5px solid var(--border-color); border-radius: 20px; padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s ease; display:flex; flex-direction:column; gap:16px;">
+                <div class="datepicker-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <button class="dp-nav-btn" id="dp-prev-month" type="button" onclick="changeDatePickerMonth(-1)" style="background: var(--border-color); border: none; color: var(--color-text-dark); width: 32px; height: 32px; border-radius: 50%; cursor: pointer;"><i class="fa-solid fa-chevron-left"></i></button>
+                    <h4 id="dp-month-year" style="font-size: 14.5px; font-weight: 800; color: var(--color-text-dark); text-transform: capitalize;">Травень 2026</h4>
+                    <button class="dp-nav-btn" id="dp-next-month" type="button" onclick="changeDatePickerMonth(1)" style="background: var(--border-color); border: none; color: var(--color-text-dark); width: 32px; height: 32px; border-radius: 50%; cursor: pointer;"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                
+                <div class="dp-weekdays" style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 11px; font-weight: 700; color: var(--color-text-muted);">
+                    <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span>
+                </div>
+                
+                <div class="dp-days-grid" id="dp-days-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center;">
+                    <!-- Days generated dynamically -->
+                </div>
+                
+                <div class="datepicker-footer" style="display: flex; gap: 10px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                    <button class="dp-action-btn secondary" id="dp-btn-manual" type="button" onclick="switchToManualDateInput()" style="flex:1; background: var(--border-color); border: 1px solid var(--border-color); color: var(--color-text-dark); padding: 10px; border-radius: 10px; font-weight: 700; font-size: 12.5px; cursor: pointer;">Ввести вручну</button>
+                    <button class="dp-action-btn" id="dp-btn-close" type="button" onclick="closeDatePicker()" style="flex:1; background: linear-gradient(135deg, var(--primary-color), var(--primary-color-dark)); color: #FFFFFF; border: none; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 12.5px; cursor: pointer; box-shadow: 0 4px 10px var(--glow-color);">Закрити</button>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Cart Pill (body-level for proper fixed positioning) -->
+    <div class="sticky-cart-bar hidden" id="sticky-cart-bar">
+        <div class="cart-bar-icon">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-badge" id="cart-bar-count">0</span>
+        </div>
+        <span class="cart-bar-price-label" id="cart-bar-price">0 грн</span>
+    </div>
+
+    <!-- Floating Support Chat Bubble -->
+    <div class="chat-support-bubble" id="chat-support-bubble" onclick="toggleSupportChat()">
+        <i class="fa-solid fa-headset"></i>
+        <span class="chat-badge hidden" id="chat-support-badge">0</span>
+    </div>
+
+    <!-- Support Chat Popover Panel -->
+    <div class="chat-support-window hidden" id="chat-support-window">
+        <div class="chat-support-header">
+            <div class="chat-support-title">
+                <i class="fa-solid fa-headset"></i>
+                <div>
+                    <h4>EPILAND Support</h4>
+                    <span>Онлайн-консультант</span>
+                </div>
+            </div>
+            <button id="chat-call-manager-btn" onclick="callManager()" style="background: rgba(255,255,255,0.15); border: none; color: #FFFFFF; font-size: 10px; font-weight: 700; cursor: pointer; padding: 5px 9px; border-radius: 8px; margin-left: auto; margin-right: 8px; display: flex; align-items: center; gap: 4px; transition: background 0.2s;" title="Покликати менеджера">
+                <i class="fa-solid fa-user-tie"></i> Кликати менеджера
+            </button>
+            <button class="chat-support-close" onclick="toggleSupportChat()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="chat-support-messages" id="chat-support-messages">
+            <div class="chat-msg system">
+                <p>Вітаємо! Напишіть ваше запитання, і адміністратор відповість вам найближчим часом. 🎪</p>
+            </div>
+        </div>
+        
+        <div class="chat-support-footer">
+            <input type="text" id="chat-support-input" placeholder="Напишіть повідомлення..." onkeypress="handleChatKeyPress(event)">
+            <button id="chat-support-send" onclick="sendSupportMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Client Logic JS -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EPILAND - Адмін Панель</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main stylesheet (to reuse typography, buttons, glassmorphic styles) -->
+    <link rel="stylesheet" href="/static/css/index.css">
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* Modern dark theme resets and variables */
+        body {
+            background-color: #090D16 !important;
+            color: #F3F4F6 !important;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #auth-section, #dashboard-section {
+            --primary-color: #6366F1;
+            --primary-color-dark: #4F46E5;
+            --bg-main: #090D16;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --color-text-main: #E5E7EB;
+            --color-text-dark: #F3F4F6;
+            --color-text-muted: #9CA3AF;
+            --accent-color: #10B981;
+            --accent-light: rgba(16, 185, 129, 0.1);
+            --accent-light-tint: rgba(99, 102, 241, 0.1);
+            --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .admin-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 40px);
+            width: 100%;
+            z-index: 1;
+            position: relative;
+        }
+
+        .login-card {
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 28px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .login-card h2 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #A5B4FC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-card .icon-shield {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #6366F1, #10B981);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 26px;
+            color: #FFF;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .login-card p {
+            font-size: 13.5px;
+            color: var(--color-text-muted);
+            margin-bottom: 24px;
+        }
+
+        .login-card .form-group {
+            width: 100%;
+            text-align: left;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            color: #FFF;
+            font-family: var(--font-stack);
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .admin-dashboard {
+            width: 100%;
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 1;
+            position: relative;
+            animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: var(--shadow-premium);
+        }
+
+        .dashboard-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dashboard-title h1 {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #A5B4FC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-title .subtitle {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6366F1;
+        }
+
+        .logo-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(99, 102, 241, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6366F1;
+            font-size: 18px;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--color-error);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: var(--font-stack);
+            font-weight: 600;
+            font-size: 13px;
+            transition: var(--transition-smooth);
+        }
+        .logout-btn:hover {
+            background: var(--color-error);
+            color: #FFF;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Stats summary widgets */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .stats-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: var(--shadow-premium);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.35);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.08);
+        }
+        .stats-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.05);
+        }
+        .stats-icon.text-green {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+        .stats-icon.text-cyan {
+            background: rgba(6, 182, 212, 0.15);
+            color: #06B6D4;
+            border: 1px solid rgba(6, 182, 212, 0.25);
+        }
+        .stats-icon.text-yellow {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+        .stats-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .stats-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stats-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        /* Controls / Filter Bar */
+        .controls-bar {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 16px 20px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-premium);
+        }
+        .controls-bar label {
+            color: var(--color-text-muted) !important;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .controls-bar label i {
+            color: #6366F1 !important;
+            margin-right: 2px;
+        }
+        .controls-bar .modern-input, .controls-bar .modern-select {
+            background: rgba(0, 0, 0, 0.2) !important;
+            border: 1.5px solid var(--border-color) !important;
+            color: #FFFFFF !important;
+            border-radius: 12px;
+            font-size: 13.5px;
+            padding: 10px 14px;
+        }
+        .controls-bar .modern-input::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+        .controls-bar .modern-input:focus, .controls-bar .modern-select:focus {
+            border-color: #6366F1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+            background: rgba(0, 0, 0, 0.3) !important;
+        }
+        .controls-bar .modern-select option {
+            background-color: #111827;
+            color: #FFFFFF;
+        }
+
+        @media (max-width: 768px) {
+            .controls-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Booking Table Styles */
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px;
+            overflow-x: auto;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-premium);
+        }
+
+        .bookings-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13.5px;
+        }
+
+        .bookings-table th {
+            padding: 14px 16px;
+            color: #A5B4FC;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .bookings-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .bookings-table tr:hover td {
+            background: rgba(255, 255, 255, 0.015);
+        }
+
+        .bookings-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .booking-id-badge {
+            font-weight: 700;
+            color: #60A5FA;
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.25);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            display: inline-block;
+            font-family: monospace;
+        }
+
+        .client-info-block {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .client-name {
+            font-weight: 700;
+            color: #FFF;
+        }
+
+        .client-phone {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition-smooth);
+        }
+        .client-phone:hover {
+            color: #60A5FA;
+        }
+
+        .client-tg {
+            font-size: 12px;
+            color: #C084FC;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+        .client-tg:hover {
+            color: #D8B4FE;
+            text-decoration: none;
+        }
+
+        .loc-badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+        .loc-badge.kyiv {
+            background: rgba(139, 92, 246, 0.15);
+            color: #C084FC;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .loc-badge.chabany {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .loc-badge.obukhiv {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .datetime-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .date-val {
+            font-weight: 700;
+            color: #FFF;
+        }
+        .time-val {
+            font-size: 12px;
+            color: #60A5FA;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .items-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .items-list li {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            width: fit-content;
+            color: #E5E7EB;
+            font-weight: 500;
+        }
+
+        .status-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Checkbox Toggler design */
+        .toggler-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .toggler-wrapper input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggler-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.08);
+            transition: .3s;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .toggler-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #6B7280;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggler-slider {
+            background-color: rgba(16, 185, 129, 0.25);
+            border-color: #10B981;
+        }
+        input:checked + .toggler-slider:before {
+            transform: translateX(20px);
+            background-color: #10B981;
+        }
+
+        .status-text {
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+        .status-text.pending {
+            color: #9CA3AF;
+        }
+        .status-text.called {
+            color: #34D399;
+        }
+
+        /* Empty state inside table */
+        .empty-table {
+            text-align: center;
+            padding: 80px 0 !important;
+        }
+        .empty-table-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            color: var(--color-text-muted);
+        }
+        .empty-table-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #6366F1;
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+            50% { box-shadow: 0 0 16px 4px rgba(99, 102, 241, 0.15); border-color: #6366F1; }
+        }
+        .empty-table-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        .empty-table p {
+            font-size: 13px;
+        }
+
+        /* Login error animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .shake {
+            animation: shake 0.3s ease-in-out;
+            border-color: var(--color-error) !important;
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #111827;
+            border: 1.5px solid #10B981;
+            color: #F3F4F6;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 13.5px;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Admin-specific splash screen overrides */
+        .admin-splash {
+            background: radial-gradient(circle at center, #0F172A 0%, #020617 100%) !important;
+        }
+        .admin-splash .splash-logo-container {
+            background: rgba(17, 24, 39, 0.85) !important;
+            border: 1px solid rgba(99, 102, 241, 0.2) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+        }
+        .admin-splash .splash-glow {
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, rgba(255, 255, 255, 0) 70%) !important;
+        }
+        .admin-splash .splash-title {
+            background: linear-gradient(135deg, #FFFFFF 0%, #A5B4FC 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+        .admin-splash .splash-subtitle {
+            color: #9CA3AF !important;
+        }
+        .admin-splash .spinner-ring {
+            border-top-color: #6366F1 !important;
+        }
+        .admin-splash .spinner-ring:nth-child(2) {
+            border-top-color: #10B981 !important;
+        }
+        .splash-logo-icon {
+            font-size: 50px;
+            color: #6366F1;
+            text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+            animation: zoomInLogo 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Admin Navigation Tabs */
+        .admin-nav-tabs {
+            display: flex;
+            gap: 16px;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+        .admin-nav-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--color-text-muted);
+            padding: 12px 24px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-family: var(--font-stack);
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+        .admin-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.07);
+            color: #FFFFFF;
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        .admin-nav-btn.active {
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            color: #FFFFFF;
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+        }
+        
+        .admin-view-section.hidden {
+            display: none !important;
+        }
+        
+        /* Support Chat Split Layout */
+        .admin-support-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: calc(100vh - 200px);
+            min-height: 520px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-premium);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        /* Sidebar: Chats List */
+        .admin-chats-sidebar {
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            background: rgba(0,0,0,0.15);
+        }
+        .sidebar-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sidebar-header h3 {
+            font-size: 15px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+        .chats-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-user-item {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: var(--transition-smooth);
+        }
+        .chat-user-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .chat-user-item.active {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 3px solid #6366F1;
+        }
+        .chat-user-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-user-item-name {
+            font-weight: 700;
+            font-size: 13.5px;
+            color: #FFFFFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-user-item-time {
+            font-size: 10px;
+            color: var(--color-text-muted);
+        }
+        .chat-user-item-snippet {
+            font-size: 11.5px;
+            color: var(--color-text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .no-chats-msg {
+            padding: 30px;
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 13px;
+        }
+        
+        /* Chat Conversation Viewport */
+        .admin-chat-viewport {
+            display: flex;
+            flex-direction: column;
+            background: rgba(255,255,255,0.01);
+        }
+        .chat-viewport-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .active-user-info h4 {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+        .active-user-info span {
+            font-size: 11.5px;
+            color: #A5B4FC;
+            font-weight: 600;
+        }
+        .chat-viewport-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(0,0,0,0.05);
+        }
+        .viewport-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--color-text-muted);
+            gap: 16px;
+        }
+        .viewport-empty-state i {
+            font-size: 40px;
+            color: rgba(99, 102, 241, 0.35);
+        }
+        .chat-viewport-footer {
+            padding: 16px 24px;
+            background: rgba(0,0,0,0.15);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-viewport-footer input {
+            flex: 1;
+            background: rgba(0,0,0,0.2) !important;
+            border: 1.5px solid var(--border-color) !important;
+            color: #FFFFFF !important;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            outline: none;
+        }
+        .chat-viewport-footer input:focus {
+            border-color: #6366F1 !important;
+        }
+        .chat-viewport-footer button {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            border: none;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+        }
+        .chat-viewport-footer button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        .nav-chat-badge {
+            background: var(--color-error);
+            color: #FFFFFF;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Chat bubble styling overrides inside Admin Panel */
+        .chat-viewport-messages .chat-msg.admin {
+            align-self: flex-end;
+            background: var(--primary-gradient);
+            color: #FFFFFF;
+            border-bottom-right-radius: 4px;
+            border-bottom-left-radius: 18px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            border: none;
+        }
+        .chat-viewport-messages .chat-msg.user {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--color-text-dark);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 18px;
+            box-shadow: var(--shadow-subtle);
+        }
+        .chat-viewport-messages .chat-msg p {
+            margin: 0;
+        }
+        .chat-viewport-messages .chat-msg .meta {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-top: 4px;
+            display: block;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <!-- Beautiful Greeting Splash Screen for Admin -->
+    <div id="splash-loader" class="splash-loader admin-splash">
+        <div class="splash-content">
+            <div class="splash-logo-container">
+                <div class="splash-glow"></div>
+                <i class="fa-solid fa-user-tie splash-logo-icon"></i>
+            </div>
+            <h2 class="splash-title">EPILAND ADMIN</h2>
+            <p class="splash-subtitle">Панель керування парком розваг</p>
+            <div class="splash-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        
+        <!-- Auth Wrapper -->
+        <div class="admin-wrapper" id="auth-section">
+            <div class="login-card" id="login-card">
+                <div class="icon-shield">
+                    <i class="fa-solid fa-lock-open"></i>
+                </div>
+                <h2>Панель Адміністратора</h2>
+                <p>Введіть пін-код для доступу до бази бронювань</p>
+                
+                <div class="form-group">
+                    <label for="admin-passcode"><i class="fa-solid fa-key"></i> Пін-код</label>
+                    <input type="password" id="admin-passcode" class="modern-input" style="width: 100%; text-align: center; letter-spacing: 4px;" placeholder="••••" required>
+                </div>
+                <button class="login-btn" id="login-btn" onclick="attemptLogin()">
+                    Увійти
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Wrapper -->
+        <div class="admin-dashboard" id="dashboard-section">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="dashboard-title">
+                    <div class="logo-circle">
+                        <i class="fa-solid fa-user-tie logo-icon"></i>
+                    </div>
+                    <div class="brand-text">
+                        <h1>EPILAND</h1>
+                        <span class="subtitle">Admin Panel</span>
+                    </div>
+                </div>
+                <div>
+                    <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Вийти</button>
+                </div>
+            </header>
+
+            <!-- Admin Section Tabs Navigation -->
+            <div class="admin-nav-tabs">
+                <button class="admin-nav-btn active" id="nav-btn-bookings" onclick="switchAdminSection('bookings')">
+                    <i class="fa-solid fa-clipboard-list"></i> Бронювання
+                </button>
+                <button class="admin-nav-btn" id="nav-btn-chats" onclick="switchAdminSection('chats')">
+                    <i class="fa-solid fa-comments"></i> Чат підтримки
+                    <span class="nav-chat-badge hidden" id="admin-chat-alert-badge">0</span>
+                </button>
+            </div>
+
+            <!-- Bookings List Section Container -->
+            <div id="bookings-section" class="admin-view-section">
+
+            <!-- Stats Summary Cards -->
+            <section class="stats-grid">
+                <div class="stats-card">
+                    <div class="stats-icon text-cyan"><i class="fa-solid fa-wallet"></i></div>
+                    <div class="stats-info">
+                        <span class="stats-label">Загальна сума</span>
+                        <span class="stats-value" id="stats-total-price">0 грн</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-icon text-green"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <div class="stats-info">
+                        <span class="stats-label">Всього замовлень</span>
+                        <span class="stats-value" id="stats-total-count">0</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-icon text-yellow"><i class="fa-solid fa-phone-volume"></i></div>
+                    <div class="stats-info">
+                        <span class="stats-label">Очікують дзвінка</span>
+                        <span class="stats-value" id="stats-pending-count">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Controls bar -->
+            <section class="controls-bar">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label for="search-input"><i class="fa-solid fa-magnifying-glass"></i> Пошук</label>
+                    <input type="text" id="search-input" class="modern-input" placeholder="Пошук за ім'ям, телефоном або ID...">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label for="filter-location"><i class="fa-solid fa-location-dot"></i> Локація</label>
+                    <select id="filter-location" class="modern-select" style="width:100%;">
+                        <option value="all">Усі локації</option>
+                        <option value="kyiv">Київ</option>
+                        <option value="chabany">Чабани</option>
+                        <option value="obukhiv">Обухів</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label for="filter-status"><i class="fa-solid fa-phone-volume"></i> Статус дзвінка</label>
+                    <select id="filter-status" class="modern-select" style="width:100%;">
+                        <option value="all">Усі записи</option>
+                        <option value="Очікує дзвінка">Очікує дзвінка</option>
+                        <option value="Подзвонили / Опрацьовано">Подзвонили / Опрацьовано</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Bookings List Table -->
+            <main class="table-container">
+                <table class="bookings-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">ID</th>
+                            <th style="width: 150px;">Дата реєстрації</th>
+                            <th style="width: 120px;">Локація</th>
+                            <th style="width: 180px;">Клієнт</th>
+                            <th style="width: 150px;">Дата / Час сеансу</th>
+                            <th>Послуги та товари</th>
+                            <th style="width: 110px;">Сума</th>
+                            <th style="width: 260px;">Статус прозвону</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookings-tbody">
+                        <!-- Bookings rows will be dynamically injected here by admin.js -->
+                        <tr>
+                            <td colspan="8" class="empty-table">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 24px; opacity: 1; color: var(--accent-violet);"></i>
+                                <p style="margin-top: 10px;">Завантаження бронювань...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </main>
+            </div><!-- /bookings-section -->
+
+            <!-- Live Chat Section Container -->
+            <div id="support-section" class="admin-view-section hidden">
+                <div class="admin-support-container">
+                    <!-- Left pane: Chats List -->
+                    <div class="admin-chats-sidebar">
+                        <div class="sidebar-header">
+                            <h3><i class="fa-solid fa-comments"></i> Чати підтримки</h3>
+                        </div>
+                        <div class="chats-list" id="admin-chats-list">
+                            <div class="no-chats-msg">Немає активних чатів</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right pane: Active Chat Window -->
+                    <div class="admin-chat-viewport">
+                        <div class="chat-viewport-header" id="chat-viewport-header">
+                            <div class="active-user-info">
+                                <h4 id="active-chat-user-name">Оберіть чат</h4>
+                                <span id="active-chat-user-username">для початку листування</span>
+                            </div>
+                            <div id="admin-chat-ai-status-container" class="hidden" style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+                                <span id="admin-chat-ai-status-badge" style="font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px;"></span>
+                                <button id="admin-chat-toggle-ai-btn" onclick="toggleAIChatMode()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #FFFFFF; font-size: 10px; font-weight: 700; padding: 5px 10px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">Перемкнути</button>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-viewport-messages" id="admin-chat-messages">
+                            <div class="viewport-empty-state">
+                                <i class="fa-solid fa-comments"></i>
+                                <p>Виберіть клієнта зі списку зліва, щоб переглянути повідомлення та відповісти</p>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-viewport-footer hidden" id="admin-chat-input-area">
+                            <input type="text" id="admin-chat-input" placeholder="Напишіть відповідь..." onkeypress="handleAdminChatKeyPress(event)">
+                            <button id="admin-chat-send" onclick="sendAdminChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast-msg" id="toast-msg">
+        <i class="fa-solid fa-circle-check" style="color: var(--color-success);"></i>
+        <span id="toast-text">Статус оновлено</span>
+    </div>
+
+    <!-- Script Admin client logic -->
+    <script src="/static/js/admin.js"></script>
+</body>
+</html>

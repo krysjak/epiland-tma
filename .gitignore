@@ -1,0 +1,25 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local environment secrets configuration
+.env
+
+# Large downloaded assets (images, PDFs, avatars)
+downloads/
+
+# Local databases (re-created dynamically on Docker start or locally)
+users.json
+chats.json
+bookings.xlsx
+bookings_backup*.xlsx
+epiland_data.json
+
+# Cache and temporary scraper analysis files
+scratch/*.html
+scratch/*.txt
+scratch/*.resolved*
+scratch/choice_data.json
+scratch/all_choice_items.txt
+scratch/analyze_output.txt

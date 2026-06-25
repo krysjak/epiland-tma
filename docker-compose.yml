@@ -1,0 +1,39 @@
+services:
+  web:
+    build: .
+    container_name: pipiland_web
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file: .env
+    environment:
+      - DATA_DIR=/app/data
+    volumes:
+      - pipiland_data:/app/data
+
+  bot:
+    build: .
+    container_name: pipiland_bot
+    restart: unless-stopped
+    command: python bot.py
+    env_file: .env
+    environment:
+      - DATA_DIR=/app/data
+    volumes:
+      - pipiland_data:/app/data
+    depends_on:
+      - web
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: pipiland_ngrok
+    restart: unless-stopped
+    # Static domain must be configured via NGROK_AUTHTOKEN and WEBAPP_URL in .env
+    command: http web:5000 --domain=${NGROK_DOMAIN:-your-static-domain.ngrok-free.dev}
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    depends_on:
+      - web
+
+volumes:
+  pipiland_data:
